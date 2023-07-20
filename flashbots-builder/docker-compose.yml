@@ -1,0 +1,57 @@
+version: "3.1"
+
+services:
+  execution:
+    build: execution
+    environment:
+      - BUILDER_TX_SIGNING_KEY=${BUILDER_TX_SIGNING_KEY}
+    volumes:
+      - /data/builder/execution:/data
+      - /data/builder/secrets:/secrets
+    ports:
+      - 30303
+      - 8545:8545
+    restart: always
+    command:
+      [
+        "--builder=true",
+        "--builder.remote_relay_endpoint=${REMOTE_RELAY_ENDPOINT}",
+        "--builder.beacon_endpoints=http://consensus:5052/",
+        "--builder.bellatrix_fork_version=0x02001020",
+        "--builder.genesis_fork_version=0x00001020",
+        "--builder.genesis_validators_root=0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a0eabc43efb",
+        "--builder.secret_key=${BUILDER_TX_SIGNING_KEY}",
+        "--datadir=/data",
+        "--goerli",
+        "--syncmode=snap",
+        "--http",
+        "--http.addr=0.0.0.0",
+        "--http.api=admin,debug,web3,eth,txpool,personal,miner,net,builder,engine",
+        "--authrpc.addr=0.0.0.0",
+        "--authrpc.port=8551",
+        "--authrpc.jwtsecret=/secrets/jwtsecret",
+        "--authrpc.vhosts=*",
+        "--verbosity=3",
+        "--miner.extradata=${BUILDER_EXTRA_DATA}",
+        "--miner.etherbase=${BUILDER_ADDRESS}",
+        "--miner.algotype=greedy",
+      ]
+  consensus:
+    build: consensus
+    volumes:
+      - /data/builder/consensus:/data
+      - /data/builder/secrets:/secrets
+    ports:
+      - 13000
+    restart: always
+    command:
+      [
+        "--accept-terms-of-use",
+        "--goerli=true",
+        "--execution-endpoint=http://execution:8551",
+        "--jwt-secret=/secrets/jwtsecret",
+        "--suggested-fee-recipient=${BUILDER_ADDRESS}",
+        "--datadir=/data",
+        "--checkpoint-sync-url=https://goerli.checkpoint-sync.ethpandaops.io",
+        "--genesis-beacon-api-url=https://goerli.checkpoint-sync.ethpandaops.io"
+      ]

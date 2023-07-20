@@ -1,0 +1,114 @@
+version: "3.1"
+
+services:
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - '6379:6379'
+
+  memcached:
+    image: memcached
+    restart: always
+    ports:
+      - '11211:11211'
+
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - '/data/relay/psql:/var/lib/postgresql/data'
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+
+  adminer:
+    image: adminer
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - '8093:8080'
+    environment:
+      ADMINER_PLUGINS: tables-filter tinymce
+
+  housekeeper:
+    image: flashbots/mev-boost-relay
+    restart: always
+    depends_on:
+      - db
+    command: >-
+      housekeeper
+      --network goerli
+      --db postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+      --beacon-uris http://consensus:3500
+      --redis-uri redis:6379
+
+  api:
+    image: flashbots/mev-boost-relay
+    restart: always
+    depends_on:
+      - db
+    command: >-
+      api
+      --network goerli
+      --secret-key ${RELAY_SECRET_KEY}
+      --db postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+      --beacon-uris http://consensus:3500
+      --redis-uri redis:6379
+    ports:
+      - '9062:9062'
+    environment:
+      LISTEN_ADDR: 0.0.0.0:9062
+
+  execution:
+    build: execution
+    volumes:
+      - /data/relay/execution:/data
+      - /data/relay/secrets:/secrets
+    ports:
+      - '30303:30303'
+    command:
+      [
+        "--datadir=/data",
+        "--goerli",
+        "--syncmode=snap",
+        "--http",
+        "--http.addr=0.0.0.0",
+        "--http.api=admin,debug,web3,eth,txpool,personal,miner,net,builder,engine",
+        "--authrpc.addr=0.0.0.0",
+        "--http.corsdomain=*",
+        "--http.addr=0.0.0.0",
+        "--http.port=8545",
+        "--http.vhosts=*",
+        "--authrpc.port=8551",
+        "--authrpc.jwtsecret=/secrets/jwtsecret",
+        "--authrpc.vhosts=*",
+        "--verbosity=3",
+      ]
+
+  consensus:
+    build: consensus
+    volumes:
+      - /data/relay/consensus:/data
+      - /data/relay/secrets:/secrets
+    ports:
+      - 13000
+    command:
+      [
+        "--accept-terms-of-use",
+        "--enable-debug-rpc-endpoints",
+        "--grpc-gateway-host=0.0.0.0",
+        "--p2p-max-peers=100",
+        "--min-sync-peers=1",
+        "--disable-reorg-late-blocks",
+        "--goerli=true",
+        "--execution-endpoint=http://execution:8551",
+        "--jwt-secret=/secrets/jwtsecret",
+        "--datadir=/data",
+        "--checkpoint-sync-url=${CHECKPOINT_SYNC_URL}",
+        "--genesis-beacon-api-url=${GENESIS_BEACON_API_URL}"
+      ]
