@@ -1,0 +1,181 @@
+version: "3.1"
+
+services:
+
+  ### Gensis Generation
+  # Creates a genesis state for the beacon chain using a YAML configuration file and
+  # a deterministic set of 64 validators.
+  create-beacon-chain-genesis:
+    image: "gcr.io/prysmaticlabs/prysm/cmd/prysmctl:latest"
+    command:
+      - testnet
+      - generate-genesis
+      - --fork=bellatrix
+      - --num-validators=64
+      - --output-ssz=/consensus/genesis.ssz
+      - --chain-config-file=/consensus/config.yml
+      - --geth-genesis-json-in=/execution/genesis.json
+      - --geth-genesis-json-out=/execution/genesis.json
+    volumes:
+      - ./consensus:/consensus
+      - ./execution:/execution
+
+  # Sets up the genesis configuration for the go-ethereum client from a JSON file.
+  geth-genesis:
+    image: "ethereum/client-go:latest"
+    command: --datadir=/execution init /execution/genesis.json
+    volumes:
+      - ./execution:/execution
+      - ./execution/genesis.json:/execution/genesis.json
+    depends_on:
+      create-beacon-chain-genesis:
+        condition: service_completed_successfully
+
+  ### Consensus
+  consensus:
+    build: consensus
+    command:
+      - --datadir=/consensus/beacondata
+      # No peers to sync with in this testnet, so setting to 0
+      - --min-sync-peers=0
+      - --genesis-state=/consensus/genesis.ssz
+      - --bootstrap-node=
+      # The chain configuration file used for setting up Prysm
+      - --chain-config-file=/consensus/config.yml
+      # We specify the chain id used by our execution client
+      - --chain-id=${CHAIN_ID:-32382}
+      - --rpc-host=0.0.0.0
+      - --contract-deployment-block=0
+      - --grpc-gateway-host=0.0.0.0
+      - --execution-endpoint=http://execution:8551
+      - --accept-terms-of-use
+      - --jwt-secret=/execution/jwtsecret
+      - --suggested-fee-recipient=0x123463a4b065722e99115d6c222f267d9cabb524
+    depends_on:
+      geth:
+        condition: service_started
+      create-beacon-chain-genesis:
+        condition: service_completed_successfully
+    ports:
+      - 4000:4000
+      - 3500:3500
+      - 8080:8080
+    volumes:
+      - ./consensus:/consensus
+      - ./jwtsecret:/execution/jwtsecret
+
+  validator:
+    image: "gcr.io/prysmaticlabs/prysm/validator:latest"
+    command:
+      - --beacon-rpc-provider=consensus:4000
+      - --datadir=/consensus/validatordata
+      - --accept-terms-of-use
+      - --interop-num-validators=64
+      - --interop-start-index=0
+      - --chain-config-file=/consensus/config.yml
+    depends_on:
+      beacon-chain:
+        condition: service_started
+    volumes:
+      - ./consensus:/consensus
+
+  ### Execution
+  execution:
+    build: execution
+    command:
+      - --builder=true
+      - --builder.remote_relay_endpoint=${RELAY_PUBLIC_KEY}@relay
+      - --builder.beacon_endpoints=http://consensus:5052/
+      - --builder.bellatrix_fork_version=0x02001020
+      - --builder.genesis_fork_version=0x00001020
+      - --builder.genesis_validators_root=0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a0eabc43efb
+      - --builder.secret_key=${BUILDER_TX_SIGNING_KEY}
+      - --http
+      - --http.api=admin,debug,web3,eth,txpool,personal,miner,net,builder,engine
+      - --http.addr=0.0.0.0
+      - --authrpc.vhosts=*
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.jwtsecret=/execution/jwtsecret
+      - --datadir=/execution
+      - --allow-insecure-unlock
+      - --unlock=0x123463a4b065722e99115d6c222f267d9cabb524
+      - --password=/execution/geth_password.txt
+      - --nodiscover
+      - --syncmode=full
+      - --miner.extradata=${BUILDER_EXTRA_DATA}
+      - --miner.etherbase=${BUILDER_ADDRESS}
+      - --miner.algotype=greedy
+    ports:
+      - 8551:8551
+      - 8545:8545
+    depends_on:
+      geth-genesis:
+        condition: service_completed_successfully
+    volumes:
+      - ./data/execution:/execution
+      - ./execution/geth_password.txt:/execution/geth_password.txt
+      - ./jwtsecret:/execution/jwtsecret
+
+  ### Relay Peripherals
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - '6379:6379'
+
+  memcached:
+    image: memcached
+    restart: always
+    ports:
+      - '11211:11211'
+
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - '/data/relay/psql:/var/lib/postgresql/data'
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+
+  adminer:
+    image: adminer
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - '8093:8080'
+    environment:
+      ADMINER_PLUGINS: tables-filter tinymce
+
+  housekeeper:
+    image: flashbots/mev-boost-relay
+    restart: always
+    depends_on:
+      - db
+    command: >-
+      housekeeper
+      --network goerli
+      --db postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+      --beacon-uris http://consensus:3500
+      --redis-uri redis:6379
+
+  relay:
+    image: flashbots/mev-boost-relay
+    restart: always
+    depends_on:
+      - db
+    command: >-
+      api
+      --network goerli
+      --secret-key ${RELAY_SECRET_KEY}
+      --db postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+      --beacon-uris http://consensus:3500
+      --redis-uri redis:6379
+    ports:
+      - '9062:9062'
+    environment:
+      LISTEN_ADDR: 0.0.0.0:9062
