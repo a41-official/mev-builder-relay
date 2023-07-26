@@ -74,7 +74,7 @@ services:
       - --interop-start-index=0
       - --chain-config-file=/consensus/config.yml
     depends_on:
-      beacon-chain:
+      consensus:
         condition: service_started
     volumes:
       - ./consensus:/consensus
