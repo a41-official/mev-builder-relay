@@ -3,6 +3,6 @@ consensus/genesis.ssz
 consensus/validatordata
 execution/geth
 execution/geth.ipc
-execution/genesis.out.json
+execution/genesis.json
 .idea/
 .env
