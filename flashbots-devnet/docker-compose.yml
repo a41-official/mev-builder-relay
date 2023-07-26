@@ -14,8 +14,8 @@ services:
       - --num-validators=64
       - --output-ssz=/consensus/genesis.ssz
       - --chain-config-file=/consensus/config.yml
-      - --geth-genesis-json-in=/execution/genesis.json
-      - --geth-genesis-json-out=/execution/genesis.out.json
+      - --geth-genesis-json-in=/execution/genesis.base.json
+      - --geth-genesis-json-out=/execution/genesis.json
     volumes:
       - ./consensus:/consensus
       - ./execution:/execution
@@ -26,7 +26,7 @@ services:
     command: --datadir=/execution init /execution/genesis.json
     volumes:
       - ./execution:/execution
-      - ./execution/genesis.out.json:/execution/genesis.json
+      - ./execution/genesis.json:/execution/genesis.json
     depends_on:
       create-beacon-chain-genesis:
         condition: service_completed_successfully
