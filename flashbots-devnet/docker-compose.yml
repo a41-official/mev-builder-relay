@@ -52,7 +52,7 @@ services:
       - --jwt-secret=/execution/jwtsecret
       - --suggested-fee-recipient=0x123463a4b065722e99115d6c222f267d9cabb524
     depends_on:
-      geth:
+      execution:
         condition: service_started
       create-beacon-chain-genesis:
         condition: service_completed_successfully
@@ -168,6 +168,7 @@ services:
     restart: always
     depends_on:
       - db
+      - consensus
     command: >-
       api
       --network goerli
