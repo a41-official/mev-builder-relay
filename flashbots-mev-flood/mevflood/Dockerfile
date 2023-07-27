@@ -4,8 +4,8 @@ FROM node:16 as builder
 RUN git clone https://github.com/darron1217/mev-flood.git /mev-flood && cd /mev-flood && git checkout devnet
 
 # Install app dependencies and build the application
-RUN cd core && rm -f ./src/output/wallets.json && yarn install && yarn script.createWallets && yarn build && cd ..
-RUN cd cli && yarn install && yarn build && cd ..
+RUN cd /mev-flood/core && rm -f ./src/output/wallets.json && yarn install && yarn script.createWallets && yarn build && cd ..
+RUN cd /mev-flood/cli && yarn install && yarn build && cd ..
 
 # Use an official Node runtime as a parent image for the runtime stage
 FROM node:16 as runtime
