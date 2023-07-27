@@ -8,7 +8,7 @@ services:
 
   # start sending swaps using the deployment file created in the last step
   spam:
-    build: ./mevflood
+    image: mevflood:latest
     command:
       - spam
       - --rpcUrl=http://geth:8545
