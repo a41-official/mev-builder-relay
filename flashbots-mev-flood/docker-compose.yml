@@ -15,6 +15,7 @@ services:
       - -s local.json
     volumes:
       - ./deployments:/app/cli/deployments
+    networks: [ flashbots-devnet_default ]
 
   # start sending swaps using the deployment file created in the last step
   spam:
@@ -28,3 +29,4 @@ services:
     depends_on:
       run-deploy:
         condition: service_completed_successfully
+    networks: [ flashbots-devnet_default ]
