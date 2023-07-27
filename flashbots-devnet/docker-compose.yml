@@ -75,17 +75,16 @@ services:
       - --datadir=/consensus/beacondata
       # No peers to sync with in this testnet, so setting to 0
       - --min-sync-peers=0
-      - --interop-genesis-state=/consensus/genesis.ssz
-      - --interop-eth1data-votes
+      - --genesis-state=/consensus/genesis.ssz
       - --bootstrap-node=
       # The chain configuration file used for setting up Prysm
       - --chain-config-file=/consensus/config.yml
       # We specify the chain id used by our execution client
       - --chain-id=32382
       - --rpc-host=0.0.0.0
+      - --contract-deployment-block=0
       - --grpc-gateway-host=0.0.0.0
       - --execution-endpoint=http://geth:8551
-      - --chain-id=32382
       - --accept-terms-of-use
       - --jwt-secret=/execution/jwtsecret
       - --suggested-fee-recipient=0x123463a4b065722e99115d6c222f267d9cabb524
