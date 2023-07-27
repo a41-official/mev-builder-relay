@@ -1,0 +1,9 @@
+consensus/beacondata
+consensus/genesis.ssz
+consensus/validatordata
+consensus/prysm
+execution/builder
+execution/geth
+execution/geth.ipc
+.idea/
+.env
