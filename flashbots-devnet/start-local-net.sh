@@ -11,10 +11,10 @@ fi
 running="$(docker compose ps --services --filter "status=running")"
 if [ -n "$running" ]; then
     docker compose down
-    rm -rf execution/geth
-    rm -rf consensus/beacondata
-    rm -rf consensus/validatordata
-    rm consensus/genesis.ssz
+    sudo rm -rf execution/geth
+    sudo rm -rf consensus/beacondata
+    sudo rm -rf consensus/validatordata
+    sudo rm consensus/genesis.ssz
     sleep 5
 fi
 
