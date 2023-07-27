@@ -18,8 +18,7 @@ First, install Docker.
 Then, run the devnet launch script:
 
 ```
-git clone https://github.com/rauljordan/eth-pos-devnet && cd eth-pos-devnet
-sh start-local-net.sh
+./start-local-net.sh
 ```
 
 This will build the images for the [flashbots builder](https://github.com/flashbots/builder) and [prysm fork](https://github.com/flashbots/prysm).
@@ -58,8 +57,6 @@ INFO [08-19|00:44:42.747] Chain head was updated                   number=53 has
 
 Once the mining difficulty of go-ethereum reaches 50, proof-of-stake will be activated and the Prysm beacon chain will be driving consensus of blocks.
 
-<img width="1728" alt="Screen Shot 2022-08-18 at 8 22 57 PM" src="https://user-images.githubusercontent.com/5572669/185518458-25a454a8-b70a-40a8-b3e6-d32770d16ca9.png">
-
 # Available Features
 
 - The network launches with a [Validator Deposit Contract](https://github.com/ethereum/consensus-specs/blob/dev/solidity_deposit_contract/deposit_contract.sol) deployed at address `0x4242424242424242424242424242424242424242`. This can be used to onboard new validators into the network by depositing 32 ETH into the contract
@@ -69,18 +66,13 @@ Once the mining difficulty of go-ethereum reaches 50, proof-of-stake will be act
 - The Prysm client's REST APIs are available at http://beacon-chain:3500. For more info on what these APIs are, see [here](https://ethereum.github.io/beacon-APIs/)
 - The Prysm client also exposes a gRPC API at http://beacon-chain:4000
 
-<img width="1631" alt="5" src="https://user-images.githubusercontent.com/5572669/186052294-70909835-210f-4b13-86a3-cf1f568bb8a3.png">
-<img width="810" alt="4" src="https://user-images.githubusercontent.com/5572669/186052296-03c18e6f-17f2-4d94-830d-ba7522cc09c8.png">
-<img width="1693" alt="3" src="https://user-images.githubusercontent.com/5572669/186052298-54b82ff2-a901-482e-9e5a-a7c265605ad6.png">
-<img width="1728" alt="2" src="https://user-images.githubusercontent.com/5572669/186052300-80d9e6d5-e2b7-4e1a-9113-1593e5a5872f.png">
-<img width="1426" alt="1" src="https://user-images.githubusercontent.com/5572669/186052301-dd487b50-183a-4fa6-bbec-216f32d6f03a.png">
 
 # Configuring the Builder
 
-There are 3 env vars to set in the builder:
+There are 3 vars to set in the builder:
 
-- `BUILDER_SECRET_KEY`
-- `RELAY_SECRET_KEY`
+- `builder.secret_key`
+- `builder.relay_secret_key`
 - `BUILDER_TX_SIGNING_KEY`
 
 You can use the private key for 0x123463a4b065722e99115d6c222f267d9cabb524 located in `sk.json`, as it has an ether balance in the devnet.
