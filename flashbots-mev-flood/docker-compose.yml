@@ -11,8 +11,8 @@ services:
     image: "flashbots/mev-flood"
     command:
       - init
-      - -r http://geth:8545
-      - -s local.json
+      - --rpcUrl=http://geth:8545
+      - --saveFile=local.json
     volumes:
       - ./deployments:/app/cli/deployments
     networks: [ flashbots-devnet_default ]
@@ -22,8 +22,8 @@ services:
     image: "flashbots/mev-flood"
     command:
       - spam
-      - -r http://geth:8545
-      - -l local.json
+      - --rpcUrl=http://geth:8545
+      - --loadFile=local.json
     volumes:
       - ./deployments:/app/cli/deployments
     depends_on:
