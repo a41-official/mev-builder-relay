@@ -16,12 +16,6 @@ services:
     volumes:
       - ./deployments:/app/cli/deployments
     networks: [ flashbots-devnet_default ]
-    healthcheck:
-      # check last contract deployed successfully
-      test: ["CMD-SHELL", "curl -s http://geth:8545 -H 'Content-Type: application/json' --data-binary '{\"jsonrpc\":\"2.0\",\"method\":\"eth_getCode\",\"params\":[\"0xa31AaBfCfcC7617379C87487cDaBF79f770F3D72\", \"latest\"],\"id\":1}' | jq -e '.result != \"0x\"'"]
-      interval: 5s
-      timeout: 3s
-      retries: 3
 
   # start sending swaps using the deployment file created in the last step
   spam:
@@ -34,5 +28,5 @@ services:
       - ./deployments:/app/cli/deployments
     depends_on:
       run-deploy:
-        condition: service_healthy
+        condition: service_completed_successfully
     networks: [ flashbots-devnet_default ]
