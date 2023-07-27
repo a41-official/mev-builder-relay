@@ -34,7 +34,7 @@ services:
       - --builder.genesis_validators_root=0x83431ec7fcf92cfc44947fc0418e831c25e1d0806590231c439830db7ad54fda
       - --builder.genesis_fork_version=0x20000089
       - --builder.bellatrix_fork_version=0x20000091
-      - --builder.beacon_endpoint=http://beacon-chain:3500
+      - --builder.beacon_endpoints=http://beacon-chain:3500
       - --miner.algotype=greedy
     ports:
       - 28545:28545
