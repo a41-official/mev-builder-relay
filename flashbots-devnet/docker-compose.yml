@@ -57,6 +57,7 @@ services:
     command:
       - testnet
       - generate-genesis
+      - --fork=bellatrix
       - --num-validators=64
       - --output-ssz=/consensus/genesis.ssz
       - --chain-config-file=/consensus/config.yml
