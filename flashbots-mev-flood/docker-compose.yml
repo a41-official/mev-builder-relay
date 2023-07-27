@@ -26,5 +26,5 @@ services:
     volumes:
       - ./deployments:/app/cli/deployments
     depends_on:
-      beacon-chain:
+      run-deploy:
         condition: service_completed_successfully
