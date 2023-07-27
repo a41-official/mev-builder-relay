@@ -36,6 +36,7 @@ services:
       - --http
       - --http.api=engine,eth,web3,net,debug,flashbots
       - --http.addr=0.0.0.0
+      - --http.corsdomain=*
       - --authrpc.vhosts=*
       - --authrpc.addr=0.0.0.0
       - --authrpc.jwtsecret=/execution/jwtsecret
