@@ -11,7 +11,7 @@ services:
     image: "flashbots/mev-flood"
     command:
       - init
-      - -r http://host.docker.internal:8545
+      - -r http://geth:8545
       - -s local.json
     volumes:
       - ./deployments:/app/cli/deployments
@@ -21,7 +21,7 @@ services:
     image: "flashbots/mev-flood"
     command:
       - spam
-      - -r http://host.docker.internal:8545
+      - -r http://geth:8545
       - -l local.json
     volumes:
       - ./deployments:/app/cli/deployments
