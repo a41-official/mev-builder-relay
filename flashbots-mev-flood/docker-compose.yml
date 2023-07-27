@@ -34,5 +34,5 @@ services:
       - ./deployments:/app/cli/deployments
     depends_on:
       run-deploy:
-        condition: service_completed_successfully
+        condition: service_healthy
     networks: [ flashbots-devnet_default ]
