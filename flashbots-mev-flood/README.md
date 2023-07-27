@@ -7,7 +7,7 @@
 
 ## Start
 ```
-./start.sh
+docker compose up -d
 ```
 
 ## IPC 연결
