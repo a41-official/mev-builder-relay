@@ -8,9 +8,9 @@ if [ ! -d "execution/builder" ]; then
     docker build -t eth-pos-devnet_geth:latest execution/builder
 fi
 
-running="$(docker-compose ps --services --filter "status=running")"
+running="$(docker compose ps --services --filter "status=running")"
 if [ -n "$running" ]; then
-    docker-compose down
+    docker compose down
     rm -rf execution/geth
     rm -rf consensus/beacondata
     rm -rf consensus/validatordata
@@ -18,4 +18,4 @@ if [ -n "$running" ]; then
     sleep 5
 fi
 
-docker-compose up -d
+docker compose up -d
