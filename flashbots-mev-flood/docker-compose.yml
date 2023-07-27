@@ -18,7 +18,7 @@ services:
     networks: [ flashbots-devnet_default ]
     healthcheck:
       # check last contract deployed successfully
-      test: ["CMD-SHELL", "curl -s http://localhost:8545 -H 'Content-Type: application/json' --data-binary '{\"jsonrpc\":\"2.0\",\"method\":\"eth_getCode\",\"params\":[\"0xa31AaBfCfcC7617379C87487cDaBF79f770F3D72\", \"latest\"],\"id\":1}' | jq -e '.result != \"0x\"'"]
+      test: ["CMD-SHELL", "curl -s http://geth:8545 -H 'Content-Type: application/json' --data-binary '{\"jsonrpc\":\"2.0\",\"method\":\"eth_getCode\",\"params\":[\"0xa31AaBfCfcC7617379C87487cDaBF79f770F3D72\", \"latest\"],\"id\":1}' | jq -e '.result != \"0x\"'"]
       interval: 5s
       timeout: 3s
       retries: 3
