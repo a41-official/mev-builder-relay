@@ -6,17 +6,6 @@ networks:
 
 services:
 
-  # deploy smart contracts & save deployment to file (./deployments/local.json on localhost)
-  run-deploy:
-    image: "flashbots/mev-flood"
-    command:
-      - init
-      - --rpcUrl=http://geth:8545
-      - --saveFile=local.json
-    volumes:
-      - ./deployments:/app/cli/deployments
-    networks: [ flashbots-devnet_default ]
-
   # start sending swaps using the deployment file created in the last step
   spam:
     image: "flashbots/mev-flood"
@@ -26,7 +15,4 @@ services:
       - --loadFile=local.json
     volumes:
       - ./deployments:/app/cli/deployments
-    depends_on:
-      run-deploy:
-        condition: service_completed_successfully
     networks: [ flashbots-devnet_default ]
