@@ -12,8 +12,9 @@ if [[ "$(docker images -q $IMAGE_NAME 2>/dev/null)" == "" ]]; then
     rm -rf mev-flood/
 fi
 
-if [ ! -f "deployments/local.json" ]; then
-    docker run -v ${PWD}/deployments:/app/cli/deployments --network flashbots-devnet_default $IMAGE_NAME init -r http://geth:8545 -s local.json
+if [ -f "deployments/local.json" ]; then
+    echo "Local deployment already exists. Removing..."
+    sudo rm deployments/local.json
 else
-    echo "Local deployment already exists"
-fi
+
+docker run -v ${PWD}/deployments:/app/cli/deployments --network flashbots-devnet_default $IMAGE_NAME init -r http://geth:8545 -s local.json
