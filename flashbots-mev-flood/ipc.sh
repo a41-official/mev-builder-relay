@@ -1,0 +1,1 @@
+docker run --rm -it -v ${PWD}/../flashbots-devnet/execution:/execution eth-pos-devnet_geth attach /execution/geth.ipc

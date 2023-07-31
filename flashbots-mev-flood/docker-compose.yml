@@ -1,0 +1,18 @@
+version: "3.9"
+
+networks:
+  flashbots-devnet_default:
+    external: true
+
+services:
+
+  # start sending swaps using the deployment file created in the last step
+  spam:
+    image: mevflood:latest
+    command:
+      - spam
+      - --rpcUrl=http://geth:8545
+      - --loadFile=local.json
+    volumes:
+      - ./deployments:/app/cli/deployments
+    networks: [ flashbots-devnet_default ]
